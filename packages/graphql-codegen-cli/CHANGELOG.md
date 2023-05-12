@@ -1,5 +1,22 @@
 # @graphql-codegen/cli
 
+## 3.3.2
+
+### Patch Changes
+
+- [#9281](https://github.com/dotansimha/graphql-code-generator/pull/9281) [`5f0eb97f1`](https://github.com/dotansimha/graphql-code-generator/commit/5f0eb97f1d65370d732433d88aca4922736d3ad3) Thanks [@saihaj](https://github.com/saihaj)! - dependencies updates:
+
+  - Updated dependency [`@graphql-tools/github-loader@^7.3.28` ↗︎](https://www.npmjs.com/package/@graphql-tools/github-loader/v/7.3.28) (from `^7.3.20`, in `dependencies`)
+  - Updated dependency [`@graphql-tools/prisma-loader@^7.2.69` ↗︎](https://www.npmjs.com/package/@graphql-tools/prisma-loader/v/7.2.69) (from `^7.2.49`, in `dependencies`)
+  - Updated dependency [`@graphql-tools/url-loader@^7.17.17` ↗︎](https://www.npmjs.com/package/@graphql-tools/url-loader/v/7.17.17) (from `^7.13.2`, in `dependencies`)
+
+- [#9371](https://github.com/dotansimha/graphql-code-generator/pull/9371) [`d431f426e`](https://github.com/dotansimha/graphql-code-generator/commit/d431f426eb594b820ac712b9f5c616f4badf6bff) Thanks [@Axxxx0n](https://github.com/Axxxx0n)! - Fixed option ignoreNoDocuments when using graphql configs
+
+- [#9275](https://github.com/dotansimha/graphql-code-generator/pull/9275) [`2a5da5894`](https://github.com/dotansimha/graphql-code-generator/commit/2a5da589468eb5970587187adae9892ff1f13134) Thanks [@milesrichardson](https://github.com/milesrichardson)! - Trigger rebuilds in watch mode while respecting rules of precedence and negation, both in terms of global (top-level) config vs. local (per-output target) config, and in terms of watch patterns (higher priority) vs. documents/schemas (lower priority). This fixes an issue with overly-aggressive rebuilds during watch mode.
+
+- Updated dependencies [[`63827fabe`](https://github.com/dotansimha/graphql-code-generator/commit/63827fabede76b2380d40392aba2a3ccb099f0c4)]:
+  - @graphql-codegen/plugin-helpers@4.2.1
+
 ## 3.3.1
 
 ### Patch Changes

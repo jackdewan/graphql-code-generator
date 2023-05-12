@@ -1,5 +1,141 @@
 # @graphql-codegen/typescript-resolvers
 
+## 3.3.0
+
+### Minor Changes
+
+- [#9196](https://github.com/dotansimha/graphql-code-generator/pull/9196) [`3848a2b73`](https://github.com/dotansimha/graphql-code-generator/commit/3848a2b73339fe9f474b31647b71e75b9ca52a96) Thanks [@beerose](https://github.com/beerose)! - Add `@defer` directive support
+
+- [#9339](https://github.com/dotansimha/graphql-code-generator/pull/9339) [`50471e651`](https://github.com/dotansimha/graphql-code-generator/commit/50471e6514557db827cd26157262401c6c600a8c) Thanks [@AaronMoat](https://github.com/AaronMoat)! - Add excludeTypes config to resolversNonOptionalTypename
+
+  This disables the adding of `__typename` in resolver types for any specified typename. This could be useful e.g. if you're wanting to enable this for all new types going forward but not do a big migration.
+
+  Usage example:
+
+  ```typescript
+  const config: CodegenConfig = {
+    schema: 'src/schema/**/*.graphql',
+    generates: {
+      'src/schema/types.ts': {
+        plugins: ['typescript', 'typescript-resolvers'],
+        config: {
+          resolversNonOptionalTypename: {
+            unionMember: true,
+            excludeTypes: ['MyType'],
+          },
+        },
+      },
+    },
+  };
+  ```
+
+- [#9229](https://github.com/dotansimha/graphql-code-generator/pull/9229) [`5aa95aa96`](https://github.com/dotansimha/graphql-code-generator/commit/5aa95aa969993043ba5e9d5dabebd7127ea5e22c) Thanks [@eddeee888](https://github.com/eddeee888)! - Use generic to simplify ResolversUnionTypes
+
+  This follows the `ResolversInterfaceTypes`'s approach where the `RefType` generic is used to refer back to `ResolversTypes` or `ResolversParentTypes` in cases of nested Union types
+
+- [#9229](https://github.com/dotansimha/graphql-code-generator/pull/9229) [`5aa95aa96`](https://github.com/dotansimha/graphql-code-generator/commit/5aa95aa969993043ba5e9d5dabebd7127ea5e22c) Thanks [@eddeee888](https://github.com/eddeee888)! - Extract interfaces to ResolversInterfaceTypes and add to resolversNonOptionalTypename
+
+  1. `ResolversInterfaceTypes` is a new type that keeps track of a GraphQL interface and its implementing types.
+
+  For example, consider this schema:
+
+  ```graphql
+  extend type Query {
+    character(id: ID!): CharacterNode
+  }
+
+  interface CharacterNode {
+    id: ID!
+  }
+
+  type Wizard implements CharacterNode {
+    id: ID!
+    screenName: String!
+    spells: [String!]!
+  }
+
+  type Fighter implements CharacterNode {
+    id: ID!
+    screenName: String!
+    powerLevel: Int!
+  }
+  ```
+
+  The generated types will look like this:
+
+  ```ts
+  export type ResolversInterfaceTypes<RefType extends Record<string, unknown>> = {
+    CharacterNode: Fighter | Wizard;
+  };
+
+  export type ResolversTypes = {
+    // other types...
+    CharacterNode: ResolverTypeWrapper<ResolversInterfaceTypes<ResolversTypes>['CharacterNode']>;
+    Fighter: ResolverTypeWrapper<Fighter>;
+    Wizard: ResolverTypeWrapper<Wizard>;
+    // other types...
+  };
+
+  export type ResolversParentTypes = {
+    // other types...
+    CharacterNode: ResolversInterfaceTypes<ResolversParentTypes>['CharacterNode'];
+    Fighter: Fighter;
+    Wizard: Wizard;
+    // other types...
+  };
+  ```
+
+  The `RefType` generic is used to reference back to `ResolversTypes` and `ResolversParentTypes` in some cases such as field returning a Union.
+
+  2. `resolversNonOptionalTypename` also affects `ResolversInterfaceTypes`
+
+  Using the schema above, if we use `resolversNonOptionalTypename` option:
+
+  ```typescript
+  const config: CodegenConfig = {
+    schema: 'src/schema/**/*.graphql',
+    generates: {
+      'src/schema/types.ts': {
+        plugins: ['typescript', 'typescript-resolvers'],
+        config: {
+          resolversNonOptionalTypename: true, // Or `resolversNonOptionalTypename: { interfaceImplementingType: true }`
+        },
+      },
+    },
+  };
+  ```
+
+  Then, the generated type looks like this:
+
+  ```ts
+  export type ResolversInterfaceTypes<RefType extends Record<string, unknown>> = {
+    CharacterNode: (Fighter & { __typename: 'Fighter' }) | (Wizard & { __typename: 'Wizard' });
+  };
+
+  export type ResolversTypes = {
+    // other types...
+    CharacterNode: ResolverTypeWrapper<ResolversInterfaceTypes<ResolversTypes>['CharacterNode']>;
+    Fighter: ResolverTypeWrapper<Fighter>;
+    Wizard: ResolverTypeWrapper<Wizard>;
+    // other types...
+  };
+
+  export type ResolversParentTypes = {
+    // other types...
+    CharacterNode: ResolversInterfaceTypes<ResolversParentTypes>['CharacterNode'];
+    Fighter: Fighter;
+    Wizard: Wizard;
+    // other types...
+  };
+  ```
+
+### Patch Changes
+
+- Updated dependencies [[`5f1073333`](https://github.com/dotansimha/graphql-code-generator/commit/5f1073333fe705053a54b57974d14ccf53088114), [`3848a2b73`](https://github.com/dotansimha/graphql-code-generator/commit/3848a2b73339fe9f474b31647b71e75b9ca52a96), [`63827fabe`](https://github.com/dotansimha/graphql-code-generator/commit/63827fabede76b2380d40392aba2a3ccb099f0c4), [`50471e651`](https://github.com/dotansimha/graphql-code-generator/commit/50471e6514557db827cd26157262401c6c600a8c), [`5aa95aa96`](https://github.com/dotansimha/graphql-code-generator/commit/5aa95aa969993043ba5e9d5dabebd7127ea5e22c), [`5950f5a68`](https://github.com/dotansimha/graphql-code-generator/commit/5950f5a6843cdd92b9d5b8ced3a97b68eadf9f30), [`5aa95aa96`](https://github.com/dotansimha/graphql-code-generator/commit/5aa95aa969993043ba5e9d5dabebd7127ea5e22c)]:
+  - @graphql-codegen/visitor-plugin-common@3.2.0
+  - @graphql-codegen/typescript@3.1.0
+  - @graphql-codegen/plugin-helpers@4.2.1
+
 ## 3.2.1
 
 ### Patch Changes
